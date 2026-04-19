@@ -1,0 +1,8 @@
+{
+  "appId": "com.miketubz.lcplanner",
+  "appName": "LC Planner",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

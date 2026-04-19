@@ -65,3 +65,14 @@ Quick steps:
 5. Deploy.
 
 Vercel will serve [index.html](index.html) automatically.
+
+## Copyright
+
+Copyright 2026 Mike Tubel. All rights reserved.
+
+Created by Mike Tubel.
+
+## Medical Disclaimer
+
+This planner is for general educational guidance only and is not medical advice.
+If you have any medical condition, are pregnant, nursing, or taking medication, consult your doctor or a licensed healthcare professional before starting any diet plan.
