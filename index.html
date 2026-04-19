@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Low-Carb Weekly Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">
+        <img src="icon.png" alt="Planner icon" class="eyebrow-icon">
+        <span>Low-Carb Planner</span>
+      </p>
+      <h2></h2>
+      <p class="subtitle">
+        Plan a full week of low-carb meals with smart portions and calorie guidance.
+      </p>
+    </header>
+
+    <section class="controls" aria-label="Planner controls">
+      <div class="controls-row">
+        <div class="field-group">
+          <label for="country">Cuisine Style</label>
+          <select id="country" name="country">
+            <option value="Australia">Australia</option>
+            <option value="Canada">Canada</option>
+            <option value="China">China</option>
+            <option value="India">India</option>
+            <option value="Japan">Japan</option>
+            <option value="Korean">Korean</option>
+            <option value="Mediterranean">Mediterranean</option>
+            <option value="Philippines">Philippines</option>
+            <option value="US">US</option>
+            <option value="UK" selected>UK</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="goal">Goal</label>
+          <select id="goal" name="goal">
+            <option value="Lose weight">Lose weight</option>
+            <option value="Maintain" selected>Maintain</option>
+            <option value="Gain muscle">Gain muscle</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="controls-row single-column">
+        <div class="field-group">
+          <label for="dailyTarget">Daily target (kcal)</label>
+          <input
+            id="dailyTarget"
+            name="dailyTarget"
+            type="number"
+            min="1000"
+            max="3500"
+            step="10"
+            placeholder="Auto-calculated based on your goal"
+          >
+          <p class="hint" id="recommendedTargetText">We’ll suggest a calorie target based on your goal.</p>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="generateBtn" type="button">Generate Plan</button>
+        <button id="savePrefBtn" type="button" class="secondary">Save</button>
+        <button id="clearPrefBtn" type="button" class="secondary">Clear</button>
+      </div>
+    </section>
+
+    <div class="day-filter hidden" id="dayFilter">
+      <button class="filter-btn active" data-day="All">All Week</button>
+      <button class="filter-btn" data-day="Monday">Mon</button>
+      <button class="filter-btn" data-day="Tuesday">Tue</button>
+      <button class="filter-btn" data-day="Wednesday">Wed</button>
+      <button class="filter-btn" data-day="Thursday">Thu</button>
+      <button class="filter-btn" data-day="Friday">Fri</button>
+      <button class="filter-btn" data-day="Saturday">Sat</button>
+      <button class="filter-btn" data-day="Sunday">Sun</button>
+    </div>
+
+    <section id="summary" class="summary hidden" aria-live="polite"></section>
+    <div id="printArea">
+      <section id="planOutput" class="plan-grid"></section>
+      <section id="groceryOutput" class="grocery hidden"></section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
