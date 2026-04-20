@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Low-Carb Weekly Companion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Low-Carb Weekly Planner</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1f4b8f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LC Planner">
+  <link rel="apple-touch-icon" href="icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,10 +22,26 @@
         <img src="icon.png" alt="Planner icon" class="eyebrow-icon">
         <span>Low-Carb Planner</span>
       </p>
-      <h2></h2>
+      <h1></h1>
       <p class="subtitle">
         Plan a full week of low-carb meals with smart portions and calorie guidance.
       </p>
+      <p class="ios-install-hint hidden" id="iosInstallHint" role="status" aria-live="polite">
+        iPhone tip: Open in Safari, tap Share, then Add to Home Screen.
+        <button id="dismissIosInstallHint" type="button" class="hint-dismiss" aria-label="Dismiss install tip">Dismiss</button>
+      </p>
+
+      <div class="theme-toggle" role="group" aria-label="Theme">
+        <span class="theme-toggle-label">Theme</span>
+        <button id="themeToggle" type="button" class="theme-toggle-btn" aria-pressed="false">
+          <span class="theme-toggle-track">
+            <span class="theme-toggle-option theme-light">Light</span>
+            <span class="theme-toggle-option theme-dark">Dark</span>
+            <span class="theme-toggle-thumb" aria-hidden="true"></span>
+          </span>
+        </button>
+      </div>
+
     </header>
 
     <section class="controls" aria-label="Planner controls">
@@ -35,8 +57,12 @@
             <option value="Korean">Korean</option>
             <option value="Mediterranean">Mediterranean</option>
             <option value="Philippines">Philippines</option>
-            <option value="US">United States</option>
-            <option value="UK" selected>United Kingdom</option>
+            <option value="Polish">Polish</option>
+            <option value="Spain">Spain</option>
+            <option value="Sri Lanka">Sri Lanka</option>
+            <option value="Thailand">Thailand</option>
+            <option value="UK" selected>UK</option>
+            <option value="US">US</option>
           </select>
         </div>
 
@@ -49,6 +75,73 @@
           </select>
         </div>
       </div>
+
+
+
+      <div class="controls-row single-column">
+        <div class="field-group">
+          <label for="mealSchedule">Meal schedule</label>
+          <select id="mealSchedule" name="mealSchedule">
+            <option value="3" selected>3 meals a day</option>
+            <option value="2">2 meals a day</option>
+            <option value="1">OMAD (1 meal a day)</option>
+          </select>
+          <p class="hint" id="mealScheduleHint">Choose how your daily calories are distributed across the day.</p>
+        </div>
+      </div>
+
+      <div class="controls-row single-column">
+        <div class="field-group">
+          <label for="carbMode">Low-carb mode</label>
+          <select id="carbMode" name="carbMode">
+            <option value="strict">Strict</option>
+            <option value="moderate" selected>Moderate</option>
+          </select>
+          <p class="hint" id="carbModeHint">Strict keeps carbs lower. Moderate allows more flexibility.</p>
+        </div>
+      </div>
+
+
+      <div class="controls-row">
+        <div class="field-group">
+          <label for="sex">Sex</label>
+          <select id="sex" name="sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="age">Age</label>
+          <input id="age" name="age" type="number" min="15" max="80" step="1" placeholder="e.g. 30">
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="field-group">
+          <label for="height">Height (cm)</label>
+          <input id="height" name="height" type="number" min="120" max="230" step="1" placeholder="e.g. 170">
+        </div>
+
+        <div class="field-group">
+          <label for="weight">Weight (kg)</label>
+          <input id="weight" name="weight" type="number" min="35" max="250" step="0.1" placeholder="e.g. 70">
+        </div>
+      </div>
+
+      <div class="controls-row single-column">
+        <div class="field-group">
+          <label for="activity">Activity Level</label>
+          <select id="activity" name="activity">
+            <option value="1.2">Sedentary</option>
+            <option value="1.375">Lightly active</option>
+            <option value="1.55" selected>Moderately active</option>
+            <option value="1.725">Very active</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="bmiResult" class="bmi-result hidden" aria-live="polite"></div>
 
       <div class="controls-row single-column">
         <div class="field-group">
@@ -70,6 +163,8 @@
         <button id="generateBtn" type="button">Generate Plan</button>
         <button id="savePrefBtn" type="button" class="secondary">Save</button>
         <button id="clearPrefBtn" type="button" class="secondary">Clear</button>
+        <button id="downloadCsvBtn" type="button" class="secondary" disabled>Export Excel</button>
+        <button id="exportPdfBtn" type="button" class="secondary" disabled>Export PDF</button>
       </div>
       <p class="medical-disclaimer" role="note">
         Disclaimer: This planner is for general educational guidance only and is not medical advice.
@@ -89,38 +184,28 @@
     </div>
 
     <section id="summary" class="summary hidden" aria-live="polite"></section>
+
+    <section id="macroSummary" class="macro-summary hidden" aria-live="polite"></section>
     <div id="printArea">
       <section id="planOutput" class="plan-grid"></section>
       <section id="groceryOutput" class="grocery hidden"></section>
     </div>
-
-    <footer class="app-credit">
-      <p>Created by Mike Tubel</p>
-      <p>Copyright 2026 Mike Tubel. All rights reserved.</p>
-      <p class="footer-disclaimer">Use of this app is at your own discretion. It is not intended to diagnose, treat, cure, or prevent any disease.</p>
-    </footer>
   </main>
 
+  <footer class="site-footer">
+    <p>Copyright 2026 Mike Tubel. All rights reserved.</p>
+    <p class="footer-disclaimer">Use of this app is at your own discretion. It is not intended to diagnose, treat, cure, or prevent any disease.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="app.js"></script>
   <script>
-    // Clear stale PWA caches/service workers from previous versions so reload gets fresh files.
-    (function forceFreshLoad() {
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          registrations.forEach(function(registration) {
-            registration.unregister();
-          });
-        });
-      }
-
-      if ("caches" in window) {
-        caches.keys().then(function(cacheNames) {
-          cacheNames.forEach(function(cacheName) {
-            caches.delete(cacheName);
-          });
-        });
-      }
-    })();
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .catch(err => console.warn('SW registration failed:', err));
+      });
+    }
   </script>
 </body>
 </html>
