@@ -14,9 +14,9 @@
     <header class="hero">
       <p class="eyebrow">
         <img src="icon.png" alt="Planner icon" class="eyebrow-icon">
-        <span>Low-Carb Planner</span>
+        <span>LC Meal Planner</span>
       </p>
-      <h2></h2>
+      <h2>Your Companion to Health</h2>
       <p class="subtitle">
         Plan a full week of low-carb meals with smart portions and calorie guidance.
       </p>
@@ -75,6 +75,32 @@
         Disclaimer: This planner is for general educational guidance only and is not medical advice.
         If you have any medical condition, are pregnant, nursing, or taking medication, consult your doctor or a licensed healthcare professional before starting any diet plan.
       </p>
+    </section>
+
+    <section class="photo-calorie" aria-label="Photo calorie estimate">
+      <h3>Photo Calorie Estimate</h3>
+      <p class="hint">Take or upload a meal photo for an AI estimate. Photos are processed for calculation only and are not saved.</p>
+
+      <div class="controls-row single-column">
+        <div class="field-group">
+          <label for="mealPhotoInput">Meal photo</label>
+          <input id="mealPhotoInput" type="file" accept="image/*" capture="environment">
+          <p class="hint" id="photoFileHint">No photo selected.</p>
+        </div>
+      </div>
+
+      <div class="button-row photo-input-row">
+        <button id="takeShotBtn" type="button" class="secondary">Take a Shot</button>
+      </div>
+
+      <div class="button-row">
+        <button id="analyzePhotoBtn" type="button">Calculate Calories</button>
+        <button id="savePhotoEstimateBtn" type="button" class="secondary" disabled>Save Estimate</button>
+        <button id="clearPhotoBtn" type="button" class="secondary">Clear Photo</button>
+      </div>
+
+      <div id="photoEstimateResult" class="photo-estimate-result hidden" aria-live="polite"></div>
+      <div id="savedPhotoEstimates" class="saved-photo-estimates hidden"></div>
     </section>
 
     <div class="day-filter hidden" id="dayFilter">

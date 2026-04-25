@@ -27,6 +27,22 @@ Web app features:
 - Country-based calorie profile
 - Grocery list generation
 - CSV and TXT download
+- Photo calorie estimate (camera or upload)
+- Save calorie estimates (numbers only, no photo stored)
+
+## Photo Calorie Estimate Setup (Netlify)
+
+The photo calorie feature uses a Netlify Function:
+- Function path: `netlify/functions/analyze-calories.js`
+- Endpoint used by the app: `/.netlify/functions/analyze-calories`
+
+Required environment variable in Netlify:
+- `OPENAI_API_KEY` = your OpenAI API key
+
+Privacy behavior:
+- The app does not save photo files in localStorage.
+- Photos are sent only for one-time analysis and are cleared when you tap Clear Photo.
+- Saved entries contain only calorie estimate text/numbers.
 
 ## Run As Python CLI
 

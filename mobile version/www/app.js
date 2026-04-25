@@ -448,7 +448,9 @@ const GENERIC_LOW_CARB_PLAN = {
 const state = {
   lastResult: null,
   selectedDay: "All",
-  customGroceries: []
+  customGroceries: [],
+  currentPhotoEstimate: null,
+  photoEstimates: []
 };
 
 const PREFERENCES_KEY = "lc_meal_planner_preferences";
@@ -467,6 +469,14 @@ const clearPrefBtn = document.getElementById("clearPrefBtn");
 const downloadTxtBtn = document.getElementById("downloadTxtBtn");
 const downloadCsvBtn = document.getElementById("downloadCsvBtn");
 const exportPdfBtn = document.getElementById("exportPdfBtn");
+const mealPhotoInputEl = document.getElementById("mealPhotoInput");
+const photoFileHintEl = document.getElementById("photoFileHint");
+const takeShotBtn = document.getElementById("takeShotBtn");
+const analyzePhotoBtn = document.getElementById("analyzePhotoBtn");
+const savePhotoEstimateBtn = document.getElementById("savePhotoEstimateBtn");
+const clearPhotoBtn = document.getElementById("clearPhotoBtn");
+const photoEstimateResultEl = document.getElementById("photoEstimateResult");
+const savedPhotoEstimatesEl = document.getElementById("savedPhotoEstimates");
 
 function savePreferences() {
   const prefs = {
@@ -519,6 +529,7 @@ function clearPreferences() {
   goalEl.value = "Maintain";
   dailyTargetEl.value = "";
   updateRecommendedTargetText();
+  clearPhotoSelection();
 
   const originalLabel = clearPrefBtn.textContent;
   clearPrefBtn.textContent = "Cleared";
@@ -981,6 +992,187 @@ function downloadCsv(result) {
   downloadText(buildCsvContent(result), `weekly_plan_${country}_${timestamp}.csv`, "text/csv;charset=utf-8");
 }
 
+function showPhotoEstimateMessage(message, isError = false) {
+  if (!photoEstimateResultEl) {
+    return;
+  }
+  photoEstimateResultEl.classList.remove("hidden", "error");
+  if (isError) {
+    photoEstimateResultEl.classList.add("error");
+  }
+  photoEstimateResultEl.innerHTML = `<p class="photo-estimate-main">${message}</p>`;
+}
+
+function renderPhotoEstimateResult(estimate) {
+  if (!photoEstimateResultEl) {
+    return;
+  }
+  photoEstimateResultEl.classList.remove("hidden", "error");
+  const confidence = Number.isFinite(estimate.confidence)
+    ? `Confidence: ${Math.round(estimate.confidence * 100)}%`
+    : "Confidence: n/a";
+  const items = Array.isArray(estimate.items) && estimate.items.length
+    ? `Detected items: ${estimate.items.join(", ")}`
+    : "Detected items: n/a";
+  const notes = estimate.notes ? `Notes: ${estimate.notes}` : "";
+  photoEstimateResultEl.innerHTML = `
+    <p class="photo-estimate-main">Estimated calories: ${estimate.totalCalories} kcal</p>
+    <p class="photo-estimate-detail">${items}</p>
+    <p class="photo-estimate-detail">${confidence}</p>
+    ${notes ? `<p class="photo-estimate-detail">${notes}</p>` : ""}
+  `;
+}
+
+function renderSavedPhotoEstimates() {
+  if (!savedPhotoEstimatesEl) {
+    return;
+  }
+  if (!state.photoEstimates.length) {
+    savedPhotoEstimatesEl.classList.add("hidden");
+    savedPhotoEstimatesEl.innerHTML = "";
+    return;
+  }
+
+  const items = state.photoEstimates
+    .slice(0, 10)
+    .map((entry) => {
+      const date = new Date(entry.createdAt).toLocaleString();
+      return `<li>${entry.totalCalories} kcal - ${date}</li>`;
+    })
+    .join("");
+
+  savedPhotoEstimatesEl.classList.remove("hidden");
+  savedPhotoEstimatesEl.innerHTML = `<h4>Saved calorie estimates</h4><ul>${items}</ul>`;
+}
+
+function clearPhotoSelection() {
+  if (mealPhotoInputEl) {
+    mealPhotoInputEl.value = "";
+  }
+  if (photoFileHintEl) {
+    photoFileHintEl.textContent = "No photo selected.";
+  }
+  state.currentPhotoEstimate = null;
+  if (savePhotoEstimateBtn) {
+    savePhotoEstimateBtn.disabled = true;
+  }
+  if (photoEstimateResultEl) {
+    photoEstimateResultEl.classList.add("hidden");
+    photoEstimateResultEl.classList.remove("error");
+    photoEstimateResultEl.innerHTML = "";
+  }
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read photo."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function resizeImageDataUrl(dataUrl, maxDimension = 1280) {
+  const image = new Image();
+  image.src = dataUrl;
+
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = () => reject(new Error("Could not load image."));
+  });
+
+  const largestSide = Math.max(image.width, image.height);
+  if (largestSide <= maxDimension) {
+    return dataUrl;
+  }
+
+  const scale = maxDimension / largestSide;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(image.width * scale);
+  canvas.height = Math.round(image.height * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.82);
+}
+
+async function analyzePhotoCalories() {
+  if (!mealPhotoInputEl || !mealPhotoInputEl.files || !mealPhotoInputEl.files[0]) {
+    showPhotoEstimateMessage("Please select a meal photo first.", true);
+    return;
+  }
+
+  const selectedFile = mealPhotoInputEl.files[0];
+  if (photoFileHintEl) {
+    photoFileHintEl.textContent = `Selected: ${selectedFile.name}`;
+  }
+
+  const originalLabel = analyzePhotoBtn ? analyzePhotoBtn.textContent : "Calculate Calories";
+  if (analyzePhotoBtn) {
+    analyzePhotoBtn.textContent = "Analyzing...";
+    analyzePhotoBtn.disabled = true;
+  }
+
+  try {
+    const base64DataUrl = await fileToDataUrl(selectedFile);
+    const resizedDataUrl = await resizeImageDataUrl(base64DataUrl);
+
+    const response = await fetch("/.netlify/functions/analyze-calories", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ imageDataUrl: resizedDataUrl })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Could not analyze the photo.");
+    }
+
+    const estimate = {
+      totalCalories: Number(payload.totalCalories) || 0,
+      confidence: Number(payload.confidence),
+      items: Array.isArray(payload.items) ? payload.items : [],
+      notes: typeof payload.notes === "string" ? payload.notes : ""
+    };
+
+    if (!estimate.totalCalories) {
+      throw new Error("No calorie estimate was returned. Try another photo.");
+    }
+
+    state.currentPhotoEstimate = estimate;
+    renderPhotoEstimateResult(estimate);
+    if (savePhotoEstimateBtn) {
+      savePhotoEstimateBtn.disabled = false;
+    }
+  } catch (error) {
+    showPhotoEstimateMessage(error.message || "Photo analysis failed.", true);
+  } finally {
+    if (analyzePhotoBtn) {
+      analyzePhotoBtn.textContent = originalLabel;
+      analyzePhotoBtn.disabled = false;
+    }
+  }
+}
+
+function savePhotoEstimate() {
+  if (!state.currentPhotoEstimate) {
+    showPhotoEstimateMessage("Run a photo calculation first.", true);
+    return;
+  }
+
+  state.photoEstimates.unshift({
+    totalCalories: state.currentPhotoEstimate.totalCalories,
+    confidence: state.currentPhotoEstimate.confidence,
+    items: state.currentPhotoEstimate.items,
+    notes: state.currentPhotoEstimate.notes,
+    createdAt: new Date().toISOString()
+  });
+  state.photoEstimates = state.photoEstimates.slice(0, 50);
+  renderSavedPhotoEstimates();
+  showPhotoEstimateMessage("Estimate saved. Photo was not stored.");
+}
+
 function generatePlan() {
   const country = countryEl.value;
   if (!FREE_CUISINE_COUNTRIES.has(country)) {
@@ -1045,6 +1237,47 @@ if (clearPrefBtn) {
   clearPrefBtn.addEventListener("click", clearPreferences);
 }
 
+if (mealPhotoInputEl) {
+  mealPhotoInputEl.addEventListener("change", () => {
+    if (mealPhotoInputEl.files && mealPhotoInputEl.files[0]) {
+      photoFileHintEl.textContent = `Selected: ${mealPhotoInputEl.files[0].name}`;
+      if (photoEstimateResultEl) {
+        photoEstimateResultEl.classList.add("hidden");
+      }
+      if (savePhotoEstimateBtn) {
+        savePhotoEstimateBtn.disabled = true;
+      }
+      state.currentPhotoEstimate = null;
+    } else {
+      clearPhotoSelection();
+    }
+  });
+}
+
+if (takeShotBtn && mealPhotoInputEl) {
+  takeShotBtn.addEventListener("click", () => {
+    mealPhotoInputEl.click();
+  });
+}
+
+if (analyzePhotoBtn) {
+  analyzePhotoBtn.addEventListener("click", analyzePhotoCalories);
+}
+
+if (savePhotoEstimateBtn) {
+  savePhotoEstimateBtn.addEventListener("click", savePhotoEstimate);
+}
+
+if (clearPhotoBtn) {
+  clearPhotoBtn.addEventListener("click", () => {
+    clearPhotoSelection();
+    if (photoEstimateResultEl) {
+      photoEstimateResultEl.classList.add("hidden");
+      photoEstimateResultEl.innerHTML = "";
+    }
+  });
+}
+
 if (downloadTxtBtn) {
   downloadTxtBtn.addEventListener("click", () => {
     if (state.lastResult) {
@@ -1105,9 +1338,9 @@ if (exportPdfBtn) {
   }
 
   // ---- Header ----
-  writeLine("LOW-CARB PLANNER", { size: 9, bold: false, color: [80, 100, 160] });
+  writeLine("LC MEAL PLANNER", { size: 9, bold: false, color: [80, 100, 160] });
   y += 2;
-  writeLine("Your LC Meal Companion", { size: 18, bold: true, color: [20, 20, 20] });
+  writeLine("Your Companion to Health", { size: 18, bold: true, color: [20, 20, 20] });
   y += 2;
   writeLine(`Cuisine Style: ${result.country}  |  Goal: ${result.goal}  |  Daily target: ${result.dailyTarget} kcal`, { size: 9, color: [100, 100, 100] });
   y += 4;
@@ -1179,3 +1412,4 @@ if (exportPdfBtn) {
 
 loadPreferences();
 updateRecommendedTargetText();
+renderSavedPhotoEstimates();

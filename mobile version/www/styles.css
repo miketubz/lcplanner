@@ -244,6 +244,75 @@ button.secondary:hover:not(:disabled) {
   font-weight: 600;
 }
 
+.photo-calorie {
+  margin-top: 24px;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-md);
+}
+
+.photo-calorie h3 {
+  margin: 0 0 8px;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.photo-input-row {
+  padding-top: 0;
+}
+
+.photo-estimate-result {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.photo-estimate-result.error {
+  border-color: rgba(155, 79, 24, 0.35);
+  background: rgba(155, 79, 24, 0.08);
+}
+
+.photo-estimate-main {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.photo-estimate-detail {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.saved-photo-estimates {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.saved-photo-estimates h4 {
+  margin: 0 0 8px;
+  font-size: 0.98rem;
+}
+
+.saved-photo-estimates ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
 .plan-grid {
   margin-top: 24px;
   display: grid;
