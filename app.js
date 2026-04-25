@@ -1298,7 +1298,7 @@ async function analyzePhotoCalories() {
       savePhotoEstimateBtn.disabled = false;
     }
   } catch (error) {
-    showManualFallback(error.message || "Photo estimate is unavailable right now. Add up to 10 food items below, then tap Estimate From List.");
+    showManualFallback(error.message || "Photo estimate is unavailable right now. Use your photo as reference, add up to 10 food items below, then tap Estimate From List.");
   } finally {
     if (analyzePhotoBtn) {
       analyzePhotoBtn.textContent = originalLabel;

@@ -110,7 +110,7 @@ exports.handler = async (event) => {
     }
     return {
       statusCode: 503,
-      body: JSON.stringify({ error: "Photo analysis is unavailable right now. Add food items manually below." })
+      body: JSON.stringify({ error: "Photo analysis is unavailable right now. Use your photo as reference and add food items manually below." })
     };
   }
 
