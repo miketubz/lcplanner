@@ -292,6 +292,54 @@ button.secondary:hover:not(:disabled) {
   line-height: 1.55;
 }
 
+.manual-photo-fallback {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.manual-fallback-title {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.manual-fallback-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.manual-fallback-row input {
+  min-height: 44px;
+}
+
+.manual-food-list {
+  margin: 8px 0 10px;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.manual-food-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.manual-food-remove {
+  min-height: auto;
+  padding: 4px 9px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+}
+
 .saved-photo-estimates {
   margin-top: 14px;
   padding: 12px 14px;

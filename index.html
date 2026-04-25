@@ -201,6 +201,19 @@
 
       <div id="photoEstimateResult" class="photo-estimate-result hidden" aria-live="polite"></div>
       <div id="savedPhotoEstimates" class="saved-photo-estimates hidden"></div>
+
+      <div id="manualPhotoFallback" class="manual-photo-fallback hidden" aria-live="polite">
+        <p class="manual-fallback-title">Could not analyze image. Add food items manually (up to 10).</p>
+        <div class="manual-fallback-row">
+          <input id="manualFoodInput" type="text" maxlength="60" placeholder="e.g. grilled chicken" aria-label="Food item">
+          <button id="addManualFoodBtn" type="button" class="secondary">Add Item</button>
+        </div>
+        <p class="hint" id="manualFoodHint">0/10 items added.</p>
+        <ul id="manualFoodList" class="manual-food-list"></ul>
+        <div class="button-row">
+          <button id="estimateManualBtn" type="button">Estimate From List</button>
+        </div>
+      </div>
     </section>
 
     <div class="day-filter hidden" id="dayFilter">
