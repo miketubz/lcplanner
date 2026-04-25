@@ -1080,11 +1080,15 @@ function renderManualFoodList() {
 function showManualFallback(message) {
   if (manualPhotoFallbackEl) {
     manualPhotoFallbackEl.classList.remove("hidden");
+    manualPhotoFallbackEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
   if (message) {
     showPhotoEstimateMessage(message, true);
   }
   renderManualFoodList();
+  if (manualFoodInputEl) {
+    manualFoodInputEl.focus();
+  }
 }
 
 function hideManualFallback() {
@@ -1273,7 +1277,7 @@ async function analyzePhotoCalories() {
       savePhotoEstimateBtn.disabled = false;
     }
   } catch (error) {
-    showManualFallback(error.message || "Photo analysis failed. Add items manually below.");
+    showManualFallback(error.message || "Photo estimate is unavailable right now. Add up to 10 food items below, then tap Estimate From List.");
   } finally {
     if (analyzePhotoBtn) {
       analyzePhotoBtn.textContent = originalLabel;

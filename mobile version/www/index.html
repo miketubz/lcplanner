@@ -79,7 +79,7 @@
 
     <section class="photo-calorie" aria-label="Photo calorie estimate">
       <h3>Photo Calorie Estimate</h3>
-      <p class="hint">Take or upload a meal photo for an AI estimate. Photos are processed for calculation only and are not saved.</p>
+      <p class="hint">Take or upload a meal photo. If photo analysis is unavailable, you can still add food items manually below. Photos are processed for calculation only and are not saved.</p>
 
       <div class="controls-row single-column">
         <div class="field-group">
@@ -103,7 +103,7 @@
       <div id="savedPhotoEstimates" class="saved-photo-estimates hidden"></div>
 
       <div id="manualPhotoFallback" class="manual-photo-fallback hidden" aria-live="polite">
-        <p class="manual-fallback-title">Could not analyze image. Add food items manually (up to 10).</p>
+        <p class="manual-fallback-title">Photo estimate unavailable. Add up to 10 food items, then tap Estimate From List.</p>
         <div class="manual-fallback-row">
           <input id="manualFoodInput" type="text" maxlength="60" placeholder="e.g. grilled chicken" aria-label="Food item">
           <button id="addManualFoodBtn" type="button" class="secondary">Add Item</button>

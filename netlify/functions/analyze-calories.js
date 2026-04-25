@@ -109,8 +109,8 @@ exports.handler = async (event) => {
       }
     }
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Server is missing OPENAI_API_KEY." })
+      statusCode: 503,
+      body: JSON.stringify({ error: "Photo analysis is unavailable right now. Add food items manually below." })
     };
   }
 
